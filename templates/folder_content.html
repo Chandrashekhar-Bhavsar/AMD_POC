@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Folder Content</title>
+  <style>
+    /* Reset some default styles for a clean slate */
+    body, ul {
+      margin: 0;
+      padding: 0;
+      list-style-type: none;
+      font-family: Arial, sans-serif;
+    }
+
+    /* Apply styles to the container */
+    .container {
+      background-color: #f5f5f5;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+    }
+
+    /* Apply styles to the header */
+    .header {
+      background-color: #333;
+      color: #fff;
+      font-size: 24px;
+      padding: 10px;
+      width: 100%;
+      text-align: center;
+      border-top-left-radius: 8px;
+      border-top-right-radius: 8px;
+      display: flex;
+      flex-direction: column; /* Added to stack elements vertically */
+      align-items: center; /* Center horizontally */
+      justify-content: center; /* Center vertically */
+    }
+
+    /* Apply styles to the list */
+    ul {
+      background-color: #fff;
+      border-bottom-left-radius: 8px;
+      border-bottom-right-radius: 8px;
+      box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.2);
+      padding: 20px;
+      max-width: 600px;
+      text-align: center;
+      margin: 20px;
+      width: 100%;
+    }
+
+    /* Apply styles to list items */
+    li {
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 5px;
+      border: 1px solid #333;
+      border-radius: 4px;
+      background-color: #f7f7f7;
+    }
+
+    /* Apply styles to folder icon */
+    .folder-icon {
+      font-size: 24px;
+      margin-right: 10px;
+      color: #333;
+    }
+
+    /* Apply styles to folder link */
+    .folder-link {
+      text-decoration: none;
+      color: #333;
+      font-weight: bold;
+      cursor: pointer;
+      transition: color 0.3s;
+    }
+
+    .folder-link:hover {
+      color: #555;
+    }
+
+    /* Apply styles to button container */
+    .button-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Apply styles to buttons */
+    button {
+      background-color: #888; /* Change the color to gray (or any other desired gray shade) */
+      color: #fff;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      margin: 5px 0; /* Add margin to separate buttons */
+    }
+
+    button:hover {
+      background-color: #555; /* Change the hover color if needed */
+    }
+
+    /* Apply styles to footer */
+    .footer {
+      background-color: #333;
+      color: #fff;
+      font-size: 16px;
+      padding: 10px;
+      width: 100%;
+      text-align: center;
+      border-bottom-left-radius: 8px;
+      border-bottom-right-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h2>Folder Content: {{ folder_name }}</h2>
+    </div>
+    <ul>
+      {% for item in content %}
+        <li>
+          <span class="folder-link">{{ item }}</span>
+          <div class="button-container">
+            <button onclick="openFile('{{ item }}')">Open</button>
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+
+    <!-- Add a single "Join" button outside the list -->
+    <button id="join-button">Join</button>
+
+    <!-- Add a "Search" button -->
+    <button id="search-button">Search</button>
+
+    <!-- Add a "Transfer to MongoDB" button -->
+    <button id="transferToMongoDB-button">Transfer to MongoDB</button>
+  </div>
+
+  <script>
+    var selectedItems = []; // To store selected items for joining
+
+    function openFile(fileName) {
+      // Create a new XMLHttpRequest to send a request to the Flask read API
+      var xhr = new XMLHttpRequest();
+      var apiEndpoint = 'http://127.0.0.1:5000/read'; // Replace with your actual Flask read API endpoint
+
+      // Prepare the request payload as an object
+      var payload = { file_name: fileName };
+
+      // Set up the request
+      xhr.open('POST', apiEndpoint, true);
+      xhr.setRequestHeader('Content-Type', 'application/json');
+
+      // Define the callback function when the request is completed
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === XMLHttpRequest.DONE) {
+          if (xhr.status === 200) {
+            // Handle the response, e.g., display the file content
+            var content = JSON.parse(xhr.responseText);
+            alert('File Content: ' + content.content);
+          } else {
+            // Handle an error response
+            alert('Error: ' + xhr.statusText);
+          }
+        }
+      };
+
+      // Send the request with the payload as JSON string
+      xhr.send(JSON.stringify(payload));
+    }
+
+    // Function to toggle item selection for joining
+    function toggleSelection(item) {
+      if (selectedItems.includes(item)) {
+        // Item is selected, so deselect it
+        selectedItems = selectedItems.filter(function (value) {
+          return value !== item;
+        });
+      } else {
+        // Item is not selected, so select it
+        selectedItems.push(item);
+      }
+    }
+
+    // Add a click event listener to the "Join" button
+    document.getElementById('join-button').addEventListener('click', function() {
+      // Prepare the selected items to send to the "Combine" API
+      var itemsToCombine = selectedItems;
+
+      // Call the "Combine" API with the selected items
+      var xhr = new XMLHttpRequest();
+      var apiEndpoint = '/combine'; // Replace with your actual "Combine" API endpoint
+
+      xhr.open('POST', apiEndpoint, true);
+      xhr.setRequestHeader('Content-Type', 'application/json');
+
+      // Define the callback function when the request is completed
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === XMLHttpRequest.DONE) {
+          if (xhr.status === 200) {
+            // Handle a successful response, e.g., display a success message
+            alert('Combining successful');
+          } else {
+            // Handle an error response
+            alert('Error: ' + xhr.statusText);
+          }
+        }
+      };
+
+      // Send the request with the selected items as JSON
+      xhr.send(JSON.stringify(itemsToCombine));
+    });
+
+    // Add a click event listener to the "Search" button
+    document.getElementById('search-button').addEventListener('click', function() {
+      // Redirect to http://127.0.0.1:5000/search
+      window.location.href = 'http://127.0.0.1:5000/search';
+    });
+
+    // Add a click event listener to the "Transfer to MongoDB" button
+    document.getElementById('transferToMongoDB-button').addEventListener('click', function() {
+      // Call the "transferToMongoDB" function when the button is clicked
+      transferToMongoDB();
+    });
+
+    // Function to transfer data to MongoDB by making a Flask API request
+    function transferToMongoDB() {
+      // Create a new XMLHttpRequest to send a request to the "insert_data" API
+      var xhr = new XMLHttpRequest();
+      var apiEndpoint = '/insert_data'; // Replace with your actual "insert_data" API endpoint
+
+      // Set up the request
+      xhr.open('POST', apiEndpoint, true);
+      xhr.setRequestHeader('Content-Type', 'application/json');
+
+      // Define the callback function when the request is completed
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === XMLHttpRequest.DONE) {
+          if (xhr.status === 200) {
+            // Handle a successful response, e.g., display a success message
+            alert('Data transfer to MongoDB successful');
+          } else {
+            // Handle an error response
+            alert('Error: ' + xhr.statusText);
+          }
+        }
+      };
+
+      // Send a POST request to the "insert_data" API
+      xhr.send(JSON.stringify({}));
+    }
+  </script>
+</body>
+</html>

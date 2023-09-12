@@ -1,0 +1,26 @@
+{
+"benchmarkName": "TPC-H_ORACLE",
+  "benchmarkScheduleID": "61fd5a4f481f987fdea6908f",
+  "benchmarkTemplateID": "61ead45f288c52946ed84832",
+  "benchmarkType": "TPC-H-Oracle",
+  "cpuModel": "AMD EPYC 7663 56-Core Processor",
+  "groupName": "Oracle-SF-10",
+  "name": "Oracle-SF-10_TPC-H_8800_5",
+  "runCategory": "AB_Test",
+  "runConfigurations": {
+    "scaleFactor": 1,
+    "DegreeOfParallel": 224,
+    "RunOption": "0-223",
+    "priority": "CRITICAL",
+    "noOfIterations": 1,
+    "scheduledAt": "2022-01-28T03:56:27.578Z"
+  },
+  "runType": null,
+  "benchmarkCategory": "Database",
+  "currentPublicationStatus": "NONE",
+  "isEPYCData": false,
+  "isPublishedToEPYC": false,
+  "resultFormat": "BASE",
+  "resultType": "AUTOMATED",
+  "isPPSummarized": true 
+  }

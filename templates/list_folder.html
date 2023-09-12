@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>List of Folders in HDFS</title>
+  <style>
+    /* Reset some default styles for a clean slate */
+    body, ul {
+      margin: 0;
+      padding: 0;
+      list-style-type: none;
+    }
+
+    /* Apply styles to the container */
+    .container {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f5f5f5;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    /* Apply styles to the header */
+    .header {
+      background-color: #333; /* Changed header background color to #333 */
+      color: #fff;
+      font-size: 24px;
+      padding: 10px;
+      width: 100%;
+      text-align: center;
+      border-top-left-radius: 8px;
+      border-top-right-radius: 8px;
+    }
+
+    /* Apply styles to the list */
+    ul {
+      background-color: #fff;
+      border-bottom-left-radius: 8px;
+      border-bottom-right-radius: 8px;
+      box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.2);
+      padding: 20px;
+      max-width: 600px;
+      text-align: center;
+    }
+
+    /* Apply styles to list items */
+    li {
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 5px;
+      border: 1px solid #333;
+      border-radius: 4px;
+      filter: grayscale(100%); /* Apply grayscale to make it black and white */
+    }
+
+    /* Apply styles to folder icon */
+    .folder-icon {
+      font-size: 24px;
+      margin-right: 10px;
+      color: #333;
+    }
+
+    /* Apply styles to folder link */
+    .folder-link {
+      text-decoration: none;
+      color: #333;
+      font-weight: bold;
+      cursor: pointer;
+      transition: color 0.3s;
+    }
+
+    .folder-link:hover {
+      color: #555;
+    }
+
+    /* Apply styles to open button */
+    .open-button {
+      background-color: #f7f7f7; /* Match button background color with the second code snippet */
+      color: #333;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      margin-left: 10px;
+    }
+
+    .open-button:hover {
+      background-color: #eee;
+    }
+
+    /* Apply styles to footer */
+    .footer {
+      background-color: #333; /* Changed footer background color to #333 */
+      color: #fff;
+      font-size: 16px;
+      padding: 10px;
+      width: 100%;
+      text-align: center;
+      border-bottom-left-radius: 8px;
+      border-bottom-right-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">List of Folders in HDFS</div>
+    <ul id="folderList">
+      <!-- Content will be generated here using JavaScript -->
+    </ul>
+    <div class="footer">AMD</div>
+  </div>
+
+  <script>
+    // Sample data representing directories
+    const data = [
+      'FFMPEG',
+      'LTP',
+      'Nginx',
+      'Redis',
+      'SPEC-CPU-2017',
+      'SPECJBB-2015',
+      'TPC-C-MSSQL',
+      'TPC-C-MYSQL',
+      'TPC-H-MSSQL',
+      'TPC-H-MYSQL',
+      'Unixbench'
+    ];
+
+    // Function to generate the folder list
+    function generateFolderList(data, parentUl) {
+      data.forEach(directory => {
+        const li = document.createElement('li');
+        const folderItem = document.createElement('div');
+        const folderIcon = document.createElement('span');
+        folderIcon.className = 'folder-icon';
+        folderIcon.innerHTML = '📂'; // Folder symbol (📂)
+        folderItem.appendChild(folderIcon);
+        const folderLink = document.createElement('a');
+        folderLink.className = 'folder-link';
+        folderLink.textContent = directory;
+        folderItem.appendChild(folderLink);
+
+        // Add an "Open" button
+        const openButton = document.createElement('button');
+        openButton.className = 'open-button';
+        openButton.textContent = 'Open';
+        folderItem.appendChild(openButton);
+
+        li.appendChild(folderItem);
+
+        // Add click event for the "Open" button
+        openButton.addEventListener('click', () => {
+          // Get the folder name
+          const folderName = directory;
+
+          // Open the folder content in a new window or tab
+          window.open(`/view_folder_content/${folderName}`, '_blank');
+        });
+
+        parentUl.appendChild(li);
+      });
+    }
+
+    // Call the function to generate the folder list
+    generateFolderList(data, document.getElementById('folderList'));
+  </script>
+</body>
+</html>
