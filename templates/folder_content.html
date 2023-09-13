@@ -127,10 +127,12 @@
     </div>
     <ul>
       {% for item in content %}
-        <li>
+        <li data-item="{{ item }}">
           <span class="folder-link">{{ item }}</span>
           <div class="button-container">
             <button onclick="openFile('{{ item }}')">Open</button>
+            <!-- Add a Remove button with an onclick event -->
+            <button onclick="removeFile('{{ item }}')">Remove</button>
           </div>
         </li>
       {% endfor %}
@@ -189,6 +191,16 @@
       } else {
         // Item is not selected, so select it
         selectedItems.push(item);
+      }
+    }
+
+    // Function to remove a file item
+    function removeFile(fileName) {
+      // Perform the removal logic here, such as removing the item from the list
+      // For example, you can use JavaScript to remove the parent <li> element
+      var listItem = document.querySelector(`[data-item="${fileName}"]`);
+      if (listItem) {
+        listItem.parentNode.removeChild(listItem);
       }
     }
 
