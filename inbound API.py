@@ -192,10 +192,21 @@ def combine():
             'Requests/sec': requests_per_second,
             'Transfer/sec': transfer_per_second
         }
+        result_info = {
+                "resultinfo": {
+                    "Statistics": {
+            i: {
+                "MetricName": metric_name,
+                "MetricValue": metric_value
+            }
+            for i, (metric_name, metric_value) in enumerate(data_dict.items())
+            }
+            }
+        }
 
         # Convert the data to JSON format
-        json_data = json.dumps(data_dict, indent=4)
-
+        json_data = json.dumps(result_info, indent=4)
+        print(json_data)
         # Define the output JSON file path in HDFS
         output_json_hdfs_path = '/BENCHMARK/Nginx/nginx-data.json'  # Replace with the desired output HDFS path
         
@@ -247,6 +258,29 @@ def insert_data():
         inserted_data = collection.insert_one(json_data)
 
         return jsonify({"message": "Data inserted successfully", "inserted_id": str(inserted_data.inserted_id)}), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+
+@app.route('/delete_file', methods=['POST'])
+def delete_file():
+    try:
+        # Get the file name from the request
+        file_name = request.json['file_name']  # Assumes the request body contains a JSON with a "file_name" field
+        print(file_name)
+
+        # Construct the full HDFS file path
+        file_path = "/BENCHMARK/Nginx/"+str(file_name)
+
+        # Check if the file exists in HDFS
+        if not hdfs_client.status(file_path, strict=False):
+            return jsonify({"message": "File not found"}), 404
+
+        # Delete the file from HDFS
+        hdfs_client.delete(file_path)
+
+        return jsonify({"message": "File deleted successfully"}), 200
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500

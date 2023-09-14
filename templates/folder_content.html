@@ -196,12 +196,35 @@
 
     // Function to remove a file item
     function removeFile(fileName) {
-      // Perform the removal logic here, such as removing the item from the list
-      // For example, you can use JavaScript to remove the parent <li> element
-      var listItem = document.querySelector(`[data-item="${fileName}"]`);
-      if (listItem) {
-        listItem.parentNode.removeChild(listItem);
-      }
+      // Call the delete API to remove the file
+      var xhr = new XMLHttpRequest();
+      var apiEndpoint = 'http://127.0.0.1:5000/delete_file'; // Replace with your delete API endpoint
+
+      // Prepare the request payload as an object
+      var payload = { file_name: fileName };
+
+      // Set up the request
+      xhr.open('POST', apiEndpoint, true);
+      xhr.setRequestHeader('Content-Type', 'application/json');
+
+      // Define the callback function when the request is completed
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === XMLHttpRequest.DONE) {
+          if (xhr.status === 200) {
+            // Handle a successful response, e.g., remove the item from the list
+            var listItem = document.querySelector(`[data-item="${fileName}"]`);
+            if (listItem) {
+              listItem.parentNode.removeChild(listItem);
+            }
+          } else {
+            // Handle an error response
+            alert('Error: ' + xhr.statusText);
+          }
+        }
+      };
+
+      // Send the request with the payload as JSON string
+      xhr.send(JSON.stringify(payload));
     }
 
     // Add a click event listener to the "Join" button
