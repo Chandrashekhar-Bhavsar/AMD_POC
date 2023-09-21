@@ -193,7 +193,7 @@ def combine():
             'Transfer/sec': transfer_per_second
         }
         result_info = {
-                "resultinfo": {
+                "resultinfo2": {
                     "Statistics": {
             i: {
                 "MetricName": metric_name,
@@ -284,6 +284,60 @@ def delete_file():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+'''
+def mongo_style_query(query):
+
+    hdfs_file_path = '/BENCHMARK/Nginx/process/data_combined.json'
+
+# Read the JSON data from HDFS
+    with hdfs_client.read(hdfs_file_path) as hdfs_file:
+        data = json.load(hdfs_file)
+    print(data)
+# Define the mongo_style_query function (same as before)
+
+    results = []
+
+    if isinstance(data, dict):
+        data = [data]
+
+    if not isinstance(data, list):
+        raise ValueError("Data must be a dictionary or a list of dictionaries")
+
+    for item in data:
+        if not isinstance(item, dict):
+            raise ValueError("Each item in data must be a dictionary")
+
+        match = True
+        for key, value in query.items():
+            if key not in item or item[key] != value:
+                match = False
+                break
+        if match:
+            results.append(item)
+
+    return results
+
+@app.route('/query', methods=['GET'])
+def perform_query():
+    try:
+        # Get the query parameter from the request
+        query_param = request.args.get("query")
+        print(query_param)
+        if not query_param:
+            return jsonify({"error": "Query parameter is required"}), 400
+
+        # Parse the query parameter into a dictionary
+        query = json.loads(query_param)
+        print(type(query))
+
+        # Perform the query
+        query_results = mongo_style_query(query)
+
+        return jsonify(query_results)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+'''
 
 if __name__ == '__main__':
     app.run()
