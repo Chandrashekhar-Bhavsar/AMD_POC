@@ -116,6 +116,7 @@ def convert_file():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 '''
+'''
 def get_value_by_key_path(data, key_path):
     keys = key_path.split(',')
     current_data = data
@@ -163,7 +164,7 @@ def extract():
 @app.route('/search', methods=['GET'])
 def combine_json():
     return render_template('search.html') 
-
+'''
 
 pattern = r'Requests/sec:\s+([\d.]+)\s+Transfer/sec:\s+([\d.]+\w+)'
 
@@ -285,59 +286,107 @@ def delete_file():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
-'''
-def mongo_style_query(query):
 
-    hdfs_file_path = '/BENCHMARK/Nginx/process/data_combined.json'
 
-# Read the JSON data from HDFS
-    with hdfs_client.read(hdfs_file_path) as hdfs_file:
-        data = json.load(hdfs_file)
-    print(data)
-# Define the mongo_style_query function (same as before)
+def perform_query(query_param):
+    try:
+        # Parse the query parameter into a dictionary
+        query = json.loads(query_param)
 
-    results = []
+        # Define the mongo_style_query function (same as before)
+        results = []
 
-    if isinstance(data, dict):
-        data = [data]
+        hdfs_file_path = '/BENCHMARK/Nginx/process/data_combined.json'
 
-    if not isinstance(data, list):
-        raise ValueError("Data must be a dictionary or a list of dictionaries")
+        # Read the JSON data from HDFS
+        with hdfs_client.read(hdfs_file_path) as hdfs_file:
+            data = json.load(hdfs_file)
 
-    for item in data:
-        if not isinstance(item, dict):
-            raise ValueError("Each item in data must be a dictionary")
+        if isinstance(data, dict):
+            data = [data]
 
-        match = True
-        for key, value in query.items():
-            if key not in item or item[key] != value:
-                match = False
+        if not isinstance(data, list):
+            raise ValueError("Data must be a dictionary or a list of dictionaries")
+
+        for item in data:
+            if not isinstance(item, dict):
+                raise ValueError("Each item in data must be a dictionary")
+
+            match = True
+            for key, value in query.items():
+                if key not in item or item[key] != value:
+                    match = False
+                    break
+            if match:
+                results.append(item)
+
+        return results
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+    
+def get_value_by_key_path(data, key_path):
+    keys = key_path.split(',')
+    current_data = data
+
+    results = {}
+    
+    for key in keys:
+        key_parts = key.strip().split('.')
+        temp_data = current_data
+        
+        for part in key_parts:
+            if part in temp_data:
+                temp_data = temp_data[part]
+            else:
+                results[key] = f"Key or key path '{key}' not found in the data."
                 break
-        if match:
-            results.append(item)
+        else:
+            results[key] = temp_data
 
     return results
 
-@app.route('/query', methods=['GET'])
-def perform_query():
+@app.route('/api/extract', methods=['GET'])
+def extract():
+    hdfs_file_path = "/BENCHMARK/Nginx/process/data_combined.json"
+
     try:
-        # Get the query parameter from the request
-        query_param = request.args.get("query")
-        print(query_param)
-        if not query_param:
-            return jsonify({"error": "Query parameter is required"}), 400
+        with hdfs_client.read(hdfs_file_path) as reader:
+            json_data = json.loads(reader.read().decode('utf-8'))
+            keys = request.args.get('keys')
+            print(keys)
+            if keys:
+                if keys.startswith('{') and keys.endswith('}'):
+                    print("Call the /query API")
+                    results= perform_query(keys)
+                    #print(results)
+                    return jsonify(results), 200
+                else:
+                    print( "in Call the /api/extract API")
+                    results=get_value_by_key_path(json_data, keys)
+                    return jsonify(results), 200
+            else:
+                return jsonify({"error": "No keys provided in the query parameters"}), 400
+    except FileNotFoundError:
+        return jsonify({"error": f"File not found at {hdfs_file_path}"}), 404
+    except json.JSONDecodeError:
+        return jsonify({"error": f"Invalid JSON data in the file at {hdfs_file_path}. Please ensure the file contains valid JSON."}), 400
+    
 
-        # Parse the query parameter into a dictionary
-        query = json.loads(query_param)
-        print(type(query))
 
-        # Perform the query
-        query_results = mongo_style_query(query)
 
-        return jsonify(query_results)
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-'''
+    
+
+    
+
+@app.route('/search', methods=['GET'])
+def search():
+        return render_template('search.html')
+        
+
+
+
+
 
 if __name__ == '__main__':
     app.run()
